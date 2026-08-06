@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mail Merge Test</title>
+<style>
+body { font-family: Arial, sans-serif; margin: 24px; }
+h2 { margin-top: 24px; }
+table { border-collapse: collapse; margin-top: 8px; }
+th, td { border: 1px solid #999; padding: 4px 10px; font-size: 14px; }
+textarea { width: 100%; height: 80px; font-family: inherit; box-sizing: border-box; }
+pre { background: #f4f4f4; padding: 8px; font-size: 13px; white-space: pre-wrap; }
+.status { font-size: 13px; color: #444; }
+.ok { color: green; }
+.bad { color: red; }
+label { font-weight: bold; }
+</style>
+</head>
+<body>
+
+<h1>Mail Merge Test</h1>
+<div class="status" id="status">Checking...</div>
+
+<h2>0. Your Gmail settings (saved in this browser)</h2>
+<label>Gmail address: <input type="text" id="setGmailUser" placeholder="you@gmail.com"></label><br>
+<label>Gmail App Password: <input type="password" id="setGmailPass" placeholder="16-char app password"></label><br>
+<label>Sender name: <input type="text" id="setSenderName" placeholder="Professor" style="width:220px"></label><br>
+<button id="saveSettingsBtn">Save settings</button>
+<small>The AI key is provided by this tool automatically &mdash; you only add your Gmail so emails send from your account. Need an App Password? Google Account &gt; Security &gt; 2-Step Verification &gt; App passwords.</small>
+
+<h2>1. Pick a spreadsheet (CSV)</h2>
+<input type="file" id="fileInput" accept=".csv">
+<table id="rosterTable"></table>
+
+<h2>2. Map columns</h2>
+<button id="detectBtn">Detect columns with AI</button>
+<div id="mapping"></div>
+
+<h2>3. Campaign + describe the email</h2>
+<label><input type="radio" name="campaign" value="students" checked> Students</label>
+<label><input type="radio" name="campaign" value="parents"> Parents</label>
+<label><input type="checkbox" id="ccParents"> CC parents (on student emails)</label><br><br>
+<textarea id="description" placeholder="e.g. Remind students about the midterm exam this Friday at 10am. Bring a calculator."></textarea>
+<br><br>
+<button id="generateBtn">Generate email with AI</button>
+
+<h2>4. Review the AI-generated email</h2>
+<label for="subject">Subject:</label><br>
+<textarea id="subject"></textarea><br>
+<label for="body">Body (placeholders are filled automatically):</label><br>
+<textarea id="body"></textarea>
+
+<h2>5. Preview</h2>
+<button id="previewBtn">Preview emails</button>
+<div id="preview"></div>
+
+<h2>6. Send</h2>
+<label><input type="checkbox" id="dryRun" checked> Dry run (don't really send)</label><br><br>
+<button id="sendBtn">Send emails</button>
+<div id="result"></div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+let headers = [];
+let rows = [];
+
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  return lines.map(line => {
+    const out = [];
+    let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (inQ) {
+        if (c === '"' && line[i + 1] === '"') { cur += '"'; i++; }
+        else if (c === '"') inQ = false;
+        else cur += c;
+      } else {
+        if (c === '"') inQ = true;
+        else if (c === ',') { out.push(cur); cur = ''; }
+        else cur += c;
+      }
+    }
+    out.push(cur);
+    return out;
+  });
+}
+
+async function api(path, payload) {
+  payload.settings = settings();
+  const res = await fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error('Server returned no JSON (HTTP ' + res.status + ')');
+  }
+  if (!res.ok) throw new Error(data.error || 'Request failed');
+  return data;
+}
+
+function showError(msg) {
+  $('result').textContent = 'ERROR: ' + msg;
+}
+
+window.addEventListener('unhandledrejection', (ev) => {
+  showError(ev.reason && ev.reason.message ? ev.reason.message : String(ev.reason));
+});
+window.addEventListener('error', (ev) => {
+  showError(ev.message);
+});
+
+function settings() {
+  return {
+    gmailUser: $('setGmailUser').value.trim(),
+    gmailPassword: $('setGmailPass').value.trim(),
+    senderName: $('setSenderName').value.trim(),
+  };
+}
+
+function loadSettings() {
+  const saved = JSON.parse(localStorage.getItem('mailmerge_settings') || '{}');
+  $('setGmailUser').value = saved.gmailUser || '';
+  $('setGmailPass').value = saved.gmailPassword || '';
+  $('setSenderName').value = saved.senderName || 'Professor';
+}
+
+$('saveSettingsBtn').addEventListener('click', () => {
+  localStorage.setItem('mailmerge_settings', JSON.stringify(settings()));
+refreshStatus();
+
+if (location.protocol !== 'http:' && location.protocol !== 'https:') {
+  $('status').innerHTML = '<span class="bad">Opened directly from the file system. Run "python server.py" first, then open http://127.0.0.1:8000</span>';
+}
+
+  alert('Settings saved in this browser.');
+});
+
+async function refreshStatus() {
+  const s = settings();
+  let parts = [];
+  try {
+    const res = await fetch('/api/status');
+    const info = await res.json();
+    parts.push('AI: ' + (info.ai_online ? '<span class="ok">ready</span>' : '<span class="bad">server has no Groq key</span>'));
+    parts.push('Model: ' + info.model);
+  } catch {
+    parts.push('<span class="bad">server offline — run: python server.py</span>');
+  }
+  parts.push('Gmail: ' + (s.gmailUser && s.gmailPassword ? '<span class="ok">ready to send</span>' : '<span class="bad">no Gmail creds (dry-run only)</span>'));
+  $('status').innerHTML = parts.join(' &nbsp; ');
+}
+
+$('fileInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const data = parseCSV(ev.target.result);
+    headers = data[0];
+    rows = data.slice(1);
+    const table = $('rosterTable');
+    table.innerHTML = '';
+    const thead = document.createElement('thead');
+    const tr = document.createElement('tr');
+    headers.forEach(h => {
+      const th = document.createElement('th');
+      th.textContent = h;
+      tr.appendChild(th);
+    });
+    thead.appendChild(tr);
+    table.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    rows.forEach(r => {
+      const trow = document.createElement('tr');
+      headers.forEach((_, i) => {
+        const td = document.createElement('td');
+        td.textContent = r[i] || '';
+        trow.appendChild(td);
+      });
+      tbody.appendChild(trow);
+    });
+    table.appendChild(tbody);
+    $('mapping').innerHTML = '';
+  };
+  reader.readAsText(file);
+});
+
+$('detectBtn').addEventListener('click', async () => {
+  if (!headers.length) { alert('Pick a CSV first.'); return; }
+  const { mapping } = await api('/api/columns', {
+    headers,
+    sample: rows.slice(0, 2),
+  });
+  let html = '<p>AI mapping (edit if wrong):</p>';
+  for (const [field, col] of Object.entries(mapping)) {
+    html += field + ': <input type="text" data-field="' + field + '" value="' + (col || '') + '"><br>';
+  }
+  $('mapping').innerHTML = html;
+});
+
+function currentMapping() {
+  const mapping = {};
+  document.querySelectorAll('#mapping input').forEach(inp => {
+    mapping[inp.dataset.field] = inp.value.trim() || null;
+  });
+  return mapping;
+}
+
+$('generateBtn').addEventListener('click', async () => {
+  const campaign = document.querySelector('input[name="campaign"]:checked').value;
+  if (!headers.length) { alert('Pick a CSV first.'); return; }
+  if (!$('description').value.trim()) { alert('Describe the email first.'); return; }
+  const draft = await api('/api/draft', {
+    description: $('description').value,
+    campaign,
+    mapping: currentMapping(),
+  });
+  $('subject').value = draft.subject;
+  $('body').value = draft.body;
+  $('preview').innerHTML = '';
+  $('result').innerHTML = '';
+  alert('AI email generated. Review it above, edit if needed, then preview.');
+});
+
+$('previewBtn').addEventListener('click', async () => {
+  const campaign = document.querySelector('input[name="campaign"]:checked').value;
+  const { messages } = await api('/api/preview', {
+    headers,
+    rows,
+    mapping: currentMapping(),
+    campaign,
+    ccParents: $('ccParents').checked,
+    subject: $('subject').value,
+    body: $('body').value,
+  });
+  const out = $('preview');
+  out.innerHTML = '';
+  messages.forEach(m => {
+    const pre = document.createElement('pre');
+    pre.textContent = 'TO: ' + m.email + (m.cc ? '\nCC: ' + m.cc : '') + '\n\n' + m.subject + '\n\n' + m.body + '\n\n----------------------------------------';
+    out.appendChild(pre);
+  });
+});
+
+$('sendBtn').addEventListener('click', async () => {
+  const campaign = document.querySelector('input[name="campaign"]:checked').value;
+  const { messages } = await api('/api/preview', {
+    headers,
+    rows,
+    mapping: currentMapping(),
+    campaign,
+    ccParents: $('ccParents').checked,
+    subject: $('subject').value,
+    body: $('body').value,
+  });
+  if (!messages.length) { alert('No valid recipients.'); return; }
+  const dryRun = $('dryRun').checked;
+  if (!dryRun && !confirm('Really send ' + messages.length + ' emails? This cannot be undone.')) return;
+  const result = await api('/api/send', { messages, dry_run: dryRun });
+  $('result').textContent = dryRun
+    ? 'DRY RUN: would send ' + result.count + ' email(s).'
+    : 'Sent: ' + result.sent.length + '  Failed: ' + result.failed.length +
+      (result.failed.length ? '\n' + result.failed.map(f => f[0] + ' - ' + f[1]).join('\n') : '');
+});
+
+refreshStatus();
+</script>
+</body>
+</html>
