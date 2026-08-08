@@ -3,23 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Garage Mail — Bulk Email, Made Personal</title>
-<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,700&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fragment+Mono&display=swap" rel="stylesheet">
+<title>GARAGEMAIL — AI-Powered Mail Merge</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #000000;
-  --panel: #0d0d0d;
-  --line: #1f1f1f;
-  --card: #e3d8d8;
-  --card-alt: rgb(217, 197, 197);
-  --brown: #473333;
-  --brown-2: #4d4747;
-  --ink: #fafafa;
-  --muted: #6d6d6d;
-  --sans: "Switzer", "Inter", sans-serif;
+  --bg: #0a0a0a;
+  --panel: rgba(255, 255, 255, 0.04);
+  --line: rgba(131, 131, 131, 0.25);
+  --ink: #ffffff;
+  --muted: rgba(255, 255, 255, 0.5);
+  --faint: rgba(255, 255, 255, 0.32);
+  --red: #ff2e31;
+  --sans: "DM Sans", sans-serif;
   --body: "Inter", sans-serif;
-  --mono: "Fragment Mono", monospace;
+  --mono: "DM Mono", monospace;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,6 +33,26 @@ body {
 }
 
 a { color: inherit; text-decoration: none; }
+::selection { background: var(--red); color: #fff; }
+
+/* ---------- Animated brand ---------- */
+@keyframes brandSweep {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+.brand {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.01em;
+  background: linear-gradient(90deg, #fff 0%, var(--red) 30%, #fff 50%, var(--red) 70%, #fff 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: brandSweep 5s linear infinite;
+}
 
 /* ---------- Navigation ---------- */
 .navbar {
@@ -47,148 +64,136 @@ a { color: inherit; text-decoration: none; }
   justify-content: space-between;
   gap: 24px;
   padding: 18px 32px;
-  background: rgba(0, 0, 0, 0.82);
+  background: rgba(10, 10, 10, 0.85);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
 }
-.brand {
-  font-family: var(--sans);
-  font-weight: 700;
-  font-size: 18px;
-  letter-spacing: 0.02em;
-}
-.brand em { font-style: normal; color: var(--card); }
 .nav-links { display: flex; gap: 28px; align-items: center; }
 .nav-links a {
   font-family: var(--mono);
   font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   color: var(--muted);
   transition: color 0.2s;
 }
-.nav-links a:hover { color: var(--card); }
-.nav-contact {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--card);
-  white-space: nowrap;
-}
+.nav-links a:hover { color: var(--red); }
+.nav-contact { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
 
 /* ---------- Hero ---------- */
 .hero {
-  padding: 96px 32px 72px;
+  padding: 110px 32px 72px;
   max-width: 1180px;
   margin: 0 auto;
 }
-.mono-tag {
-  display: inline-block;
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   font-family: var(--mono);
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  color: var(--card);
-  border: 1px solid var(--brown-2);
-  padding: 6px 12px;
-  margin-bottom: 28px;
+  color: var(--muted);
+  margin-bottom: 30px;
+}
+.kicker::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--red);
 }
 .hero h1 {
   font-family: var(--sans);
   font-weight: 700;
-  font-size: clamp(44px, 8vw, 88px);
-  line-height: 0.98;
+  font-size: clamp(46px, 8.5vw, 96px);
+  line-height: 0.95;
   letter-spacing: -0.03em;
-  max-width: 16ch;
+  max-width: 18ch;
 }
-.hero h1 em { font-style: normal; color: var(--card); }
+.hero h1 .red { color: var(--red); }
 .hero .lead {
   margin-top: 28px;
-  max-width: 52ch;
+  max-width: 54ch;
   color: var(--muted);
   font-size: 18px;
 }
-.status-row { margin-top: 36px; display: flex; flex-wrap: wrap; gap: 10px; }
-.status-row .label {
+#status {
+  margin-top: 36px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
   font-family: var(--mono);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
+  font-size: 13px;
   color: var(--muted);
 }
-.status-row .ok, .status-row .bad {
-  font-family: var(--mono);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  padding: 6px 14px;
-  border-radius: 100px;
-}
-.status-row .ok { background: var(--card); color: #000; }
-.status-row .bad { background: var(--brown); color: var(--card); border: 1px solid var(--brown-2); }
-#status { margin-top: 20px; font-family: var(--mono); font-size: 13px; color: var(--muted); }
-#status .ok, #status .bad {
-  display: inline-block;
-  font-family: var(--mono);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+#status .ok {
+  background: var(--red);
+  color: #fff;
   padding: 4px 12px;
   border-radius: 100px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
-#status .ok { background: var(--card); color: #000; }
-#status .bad { background: var(--brown); color: var(--card); }
+#status .bad {
+  border: 1px solid var(--line);
+  color: var(--muted);
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
 .hero-actions { margin-top: 44px; display: flex; flex-wrap: wrap; gap: 14px; }
 
 /* ---------- Buttons ---------- */
 .btn {
+  display: inline-block;
   font-family: var(--sans);
-  font-weight: 700;
+  font-weight: 600;
   font-size: 15px;
-  background: var(--card);
+  background: #fff;
   color: #000;
-  border: 1px solid var(--card);
-  padding: 14px 26px;
-  border-radius: 8px;
+  border: 1px solid #fff;
+  padding: 15px 28px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: transform 0.15s, opacity 0.15s;
+  transition: transform 0.15s, opacity 0.15s, border-color 0.15s, color 0.15s;
 }
-.btn:hover { opacity: 0.9; transform: translateY(-1px); }
-.btn-ghost {
-  background: transparent;
-  color: var(--ink);
-  border: 1px solid var(--brown-2);
-}
-.btn-ghost:hover { border-color: var(--card); opacity: 1; }
-.btn-small { padding: 10px 18px; font-size: 13px; }
+.btn:hover { transform: translateY(-2px); opacity: 0.92; }
+.btn-outline { background: transparent; color: #fff; border-color: var(--line); }
+.btn-outline:hover { border-color: var(--red); color: var(--red); opacity: 1; }
 
 /* ---------- Value props ---------- */
 .props {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  gap: 14px;
   max-width: 1180px;
   margin: 0 auto;
-  padding: 0 32px 40px;
+  padding: 0 32px 48px;
 }
 .prop {
-  background: var(--card-alt);
-  color: #000;
-  padding: 28px 26px;
-  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 28px;
+  border-radius: 8px;
+  transition: border-color 0.2s;
 }
-.prop .n { font-family: var(--mono); font-size: 13px; display: block; margin-bottom: 14px; }
-.prop h3 { font-family: var(--sans); font-weight: 700; font-size: 20px; margin-bottom: 8px; }
-.prop p { font-size: 14px; color: #3a3333; }
+.prop:hover { border-color: var(--red); }
+.prop .n { font-family: var(--mono); font-size: 13px; color: var(--red); display: block; margin-bottom: 16px; }
+.prop h3 { font-family: var(--sans); font-weight: 600; font-size: 20px; margin-bottom: 8px; }
+.prop p { font-size: 14px; color: var(--muted); }
 
 /* ---------- Sections ---------- */
 main { max-width: 1180px; margin: 0 auto; padding: 0 32px 80px; }
-.step {
-  padding: 56px 0;
-  border-top: 1px solid var(--line);
-}
+.step { padding: 56px 0; border-top: 1px solid var(--line); }
 .step-head { display: flex; align-items: baseline; gap: 20px; margin-bottom: 32px; }
-.step-head .n { font-family: var(--mono); font-size: 14px; color: var(--card); }
-.step-head h2 { font-family: var(--sans); font-weight: 700; font-size: clamp(26px, 4vw, 36px); letter-spacing: -0.02em; }
+.step-head .n { font-family: var(--mono); font-size: 14px; color: var(--red); }
+.step-head h2 { font-family: var(--sans); font-weight: 700; font-size: clamp(26px, 4vw, 40px); letter-spacing: -0.02em; }
 .step-head .sub { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); margin-left: auto; }
 
 /* ---------- Fields ---------- */
@@ -209,17 +214,17 @@ input[type="text"], input[type="password"], textarea, select {
   color: var(--ink);
   font-family: var(--body);
   font-size: 15px;
-  padding: 13px 15px;
-  border-radius: 8px;
+  padding: 14px 16px;
+  border-radius: 6px;
   outline: none;
   transition: border-color 0.2s;
 }
-input:focus, textarea:focus, select:focus { border-color: var(--brown-2); }
-input::placeholder, textarea::placeholder { color: var(--muted); }
+input:focus, textarea:focus, select:focus { border-color: var(--red); }
+input::placeholder, textarea::placeholder { color: var(--faint); }
 textarea { min-height: 110px; resize: vertical; }
-input[type="checkbox"], input[type="radio"] { accent-color: var(--card); width: 16px; height: 16px; cursor: pointer; }
+input[type="checkbox"], input[type="radio"] { accent-color: var(--red); width: 16px; height: 16px; cursor: pointer; }
 .hint { font-size: 13px; color: var(--muted); margin-top: 8px; max-width: 560px; }
-.hint code { font-family: var(--mono); font-size: 12px; color: var(--card); background: var(--panel); padding: 2px 6px; border-radius: 4px; }
+.hint code { font-family: var(--mono); font-size: 12px; color: var(--red); background: var(--panel); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--line); }
 
 /* ---------- Campaign chips ---------- */
 .chips { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 24px; }
@@ -231,15 +236,15 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--card); width: 
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  padding: 12px 22px;
+  padding: 13px 22px;
   border-radius: 100px;
-  border: 1px solid var(--brown-2);
+  border: 1px solid var(--line);
   color: var(--muted);
   cursor: pointer;
   transition: all 0.15s;
 }
-.chip input:checked + span { background: var(--card); color: #000; border-color: var(--card); }
-.chip input:focus-visible + span { outline: 2px solid var(--card); outline-offset: 2px; }
+.chip input:checked + span { background: var(--red); color: #fff; border-color: var(--red); }
+.chip input:focus-visible + span { outline: 2px solid var(--red); outline-offset: 2px; }
 .checkline {
   display: inline-flex;
   align-items: center;
@@ -254,7 +259,7 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--card); width: 
 }
 
 /* ---------- Table ---------- */
-.table-wrap { overflow-x: auto; margin-top: 24px; border: 1px solid var(--line); border-radius: 10px; }
+.table-wrap { overflow-x: auto; margin-top: 24px; border: 1px solid var(--line); border-radius: 8px; }
 table { border-collapse: collapse; width: 100%; }
 th, td { border-bottom: 1px solid var(--line); padding: 12px 16px; font-size: 14px; text-align: left; white-space: nowrap; }
 th { font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); }
@@ -264,18 +269,20 @@ tr:last-child td { border-bottom: none; }
 /* ---------- Mapping ---------- */
 #mapping { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 24px; max-width: 880px; }
 #mapping p { grid-column: 1 / -1; font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--muted); }
+#mapping div label { display: block; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 6px; }
 #mapping input { width: 100%; }
 
 /* ---------- Preview / Result ---------- */
 #preview { margin-top: 24px; display: grid; gap: 14px; }
 #preview pre {
-  background: var(--card-alt);
-  color: #000;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  color: #fff;
   font-family: var(--mono);
   font-size: 13px;
-  line-height: 1.55;
+  line-height: 1.6;
   padding: 22px 24px;
-  border-radius: 10px;
+  border-radius: 8px;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -284,7 +291,7 @@ tr:last-child td { border-bottom: none; }
   font-family: var(--mono);
   font-size: 13px;
   line-height: 1.7;
-  color: var(--card);
+  color: var(--ink);
   background: var(--panel);
   border: 1px solid var(--line);
   padding: 16px 20px;
@@ -303,41 +310,40 @@ tr:last-child td { border-bottom: none; }
   grid-template-columns: 2fr 1fr 1fr;
   gap: 40px;
 }
-.footer .brand { font-size: 20px; }
+.footer .brand { font-size: 22px; }
 .footer .tag { color: var(--muted); margin-top: 10px; font-size: 14px; max-width: 32ch; }
 .footer h4 { font-family: var(--mono); font-size: 12px; text-transform: uppercase; letter-spacing: 0.16em; color: var(--muted); margin-bottom: 14px; }
 .footer ul { list-style: none; }
 .footer ul li { margin-bottom: 10px; }
 .footer ul a, .footer ul li { font-size: 14px; color: var(--ink); transition: color 0.2s; }
-.footer ul a:hover { color: var(--card); }
+.footer ul a:hover { color: var(--red); }
 .footer .copy { grid-column: 1 / -1; font-family: var(--mono); font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 24px; margin-top: 20px; }
 
 /* ---------- Reveal ---------- */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; }
 .reveal.in { opacity: 1; transform: none; }
 
-/* ---------- Tablet (Framer-style tablet variant) ---------- */
+/* ---------- Tablet ---------- */
 @media (max-width: 1024px) {
-  .hero { padding: 72px 28px 56px; }
+  .hero { padding: 84px 28px 56px; }
   main { padding: 0 28px 64px; }
-  .props { padding: 0 28px 32px; }
+  .props { padding: 0 28px 36px; }
   .prop { padding: 24px 22px; }
   .step { padding: 48px 0; }
 }
 
-/* ---------- Phone (Framer-style mobile variant) ---------- */
+/* ---------- Phone ---------- */
 @media (max-width: 760px) {
   .props { grid-template-columns: 1fr; }
   .footer { grid-template-columns: 1fr; gap: 28px; }
   .navbar { padding: 14px 18px; flex-wrap: wrap; gap: 10px; }
   .nav-contact { display: none; }
-  .hero { padding: 56px 18px 44px; }
+  .hero { padding: 64px 18px 48px; }
   main { padding: 0 18px 48px; }
   .footer { padding: 44px 18px 28px; }
   .step-head { flex-wrap: wrap; }
   .hero-actions { flex-direction: column; align-items: stretch; }
   .hero-actions .btn { text-align: center; }
-  .table-wrap { margin-top: 18px; }
   th, td { padding: 10px 12px; font-size: 13px; }
   #mapping { grid-template-columns: 1fr; }
 }
@@ -345,24 +351,24 @@ tr:last-child td { border-bottom: none; }
 /* ---------- Small phones ---------- */
 @media (max-width: 480px) {
   .navbar { padding: 12px 14px; }
-  .brand { font-size: 16px; }
+  .brand { font-size: 17px; }
   .nav-links { gap: 16px; }
   .nav-links a { font-size: 11px; }
-  .mono-tag { font-size: 10px; padding: 5px 10px; }
-  .hero h1 { font-size: clamp(40px, 13vw, 52px); }
-  .btn, .btn-small { padding: 16px 20px; font-size: 15px; }
-  .chip span { padding: 12px 18px; font-size: 12px; }
+  .kicker { font-size: 10px; }
+  .hero h1 { font-size: clamp(42px, 13vw, 56px); }
+  .btn { padding: 16px 20px; font-size: 15px; }
+  .chip span { padding: 13px 18px; font-size: 12px; }
   .step-head .sub { margin-left: 0; flex-basis: 100%; }
   .field label { font-size: 11px; }
   input[type="text"], input[type="password"], textarea, select { padding: 14px 14px; font-size: 16px; }
   #preview pre { font-size: 12px; padding: 18px 16px; }
   #result { font-size: 12px; }
-  .props { padding: 0 18px 24px; }
+  .props { padding: 0 18px 28px; }
   .prop { padding: 22px 20px; }
-  .footer { grid-template-columns: 1fr; gap: 24px; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  .brand { animation: none; -webkit-text-fill-color: #fff; color: #fff; }
   .reveal { opacity: 1; transform: none; transition: none; }
 }
 </style>
@@ -370,26 +376,23 @@ tr:last-child td { border-bottom: none; }
 <body>
 
 <nav class="navbar">
-  <div class="brand">GARAGE<em>MAIL.</em></div>
+  <div class="brand">GARAGEMAIL</div>
   <div class="nav-links">
     <a href="#workflow">Workflow</a>
     <a href="#settings">Settings</a>
-    <a href="#preview">Status</a>
+    <a href="#previewSection">Status</a>
   </div>
   <a class="nav-contact" href="mailto:aakashdutta3331@gmail.com">aakashdutta3331@gmail.com</a>
 </nav>
 
 <header class="hero">
-  <span class="mono-tag">AI-Powered Bulk Email / Mail Merge</span>
-  <h1>Write once.<br><em>Speak to everyone.</em></h1>
+  <span class="kicker">AI-Powered Bulk Email / Mail Merge</span>
+  <h1>Write once.<br>Speak to <span class="red">everyone.</span></h1>
   <p class="lead">AI-written, per-person emails for every student and parent on your list. Upload the roster, let the machine map and write, review everything, then send with confidence.</p>
-  <div class="status-row">
-    <span class="label">System status</span>
-    <div id="status">Checking...</div>
-  </div>
+  <div id="status">Checking...</div>
   <div class="hero-actions">
     <a class="btn" href="#workflow">Start the workflow ↓</a>
-    <a class="btn btn-ghost" href="#settings">Gmail settings</a>
+    <a class="btn btn-outline" href="#settings">Gmail settings</a>
   </div>
 </header>
 
@@ -453,7 +456,7 @@ tr:last-child td { border-bottom: none; }
       <h2>Map columns</h2>
       <span class="sub">AI assisted</span>
     </div>
-    <button class="btn btn-ghost" id="detectBtn">Detect columns with AI</button>
+    <button class="btn btn-outline" id="detectBtn">Detect columns with AI</button>
     <div id="mapping"></div>
   </section>
 
@@ -499,7 +502,7 @@ tr:last-child td { border-bottom: none; }
       <h2>Preview &amp; send</h2>
       <span class="sub" id="statusLabel">Final check</span>
     </div>
-    <button class="btn btn-ghost" id="previewBtn">Preview emails</button>
+    <button class="btn btn-outline" id="previewBtn">Preview emails</button>
     <div id="preview"></div>
     <div class="section-actions" style="display:flex; gap:24px; align-items:center; flex-wrap:wrap;">
       <label class="checkline"><input type="checkbox" id="dryRun" checked> Dry run (don't really send)</label>
@@ -512,7 +515,7 @@ tr:last-child td { border-bottom: none; }
 
 <footer class="footer">
   <div>
-    <div class="brand">GARAGE<em>MAIL.</em></div>
+    <div class="brand">GARAGEMAIL</div>
     <p class="tag">Built to send with intent &mdash; every message hand-checked before it flies.</p>
   </div>
   <div>
@@ -530,7 +533,7 @@ tr:last-child td { border-bottom: none; }
       <li><a href="tel:+918210618733">+91 82106 18733</a></li>
     </ul>
   </div>
-  <div class="copy">© GarageMail &mdash; GarageBand Mail Merge. Wear your story.</div>
+  <div class="copy">© GARAGEMAIL &mdash; AI-Powered Mail Merge. Built on the Kirk Sinner template.</div>
 </footer>
 
 <script>
@@ -747,7 +750,7 @@ loadSettings();
 refreshStatus();
 </script>
 <script>
-// Scroll-reveal (GarageBand-style appear-on-scroll), respects reduced motion.
+// Scroll-reveal (appear-on-scroll), respects reduced motion.
 const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 if (!reduced && 'IntersectionObserver' in window) {
   const io = new IntersectionObserver((entries) => {
