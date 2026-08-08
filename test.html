@@ -319,9 +319,41 @@ tr:last-child td { border-bottom: none; }
 .footer ul a:hover { color: var(--red); }
 .footer .copy { grid-column: 1 / -1; font-family: var(--mono); font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 24px; margin-top: 20px; }
 
-/* ---------- Reveal ---------- */
+/* ---------- Hero entrance (Framer-style appear) ---------- */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: none; }
+}
+.appear { opacity: 0; animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.appear-nav { opacity: 0; animation: dropIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.a1 { animation-delay: 0.10s; }
+.a2 { animation-delay: 0.22s; }
+.a3 { animation-delay: 0.34s; }
+.a4 { animation-delay: 0.46s; }
+.a5 { animation-delay: 0.58s; }
+
+/* ---------- Hero headline mask reveal (per line) ---------- */
+.split .line { display: block; overflow: hidden; padding-bottom: 0.12em; margin-bottom: -0.12em; }
+.split .line > span {
+  display: inline-block;
+  transform: translateY(112%);
+  animation: lineUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.split .line:nth-child(1) > span { animation-delay: 0.20s; }
+.split .line:nth-child(2) > span { animation-delay: 0.38s; }
+@keyframes lineUp {
+  to { transform: none; }
+}
+
+/* ---------- Reveal (on scroll) ---------- */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; }
 .reveal.in { opacity: 1; transform: none; }
+.prop:nth-child(2) { transition-delay: 0.08s; }
+.prop:nth-child(3) { transition-delay: 0.16s; }
 
 /* ---------- Tablet ---------- */
 @media (max-width: 1024px) {
@@ -369,13 +401,15 @@ tr:last-child td { border-bottom: none; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .brand { animation: none; -webkit-text-fill-color: #fff; color: #fff; }
+  .appear, .appear-nav { opacity: 1; animation: none; }
+  .split .line > span { transform: none; animation: none; }
   .reveal { opacity: 1; transform: none; transition: none; }
 }
 </style>
 </head>
 <body>
 
-<nav class="navbar">
+<nav class="navbar appear-nav">
   <div class="brand">GARAGEMAIL</div>
   <div class="nav-links">
     <a href="#workflow">Workflow</a>
@@ -386,11 +420,14 @@ tr:last-child td { border-bottom: none; }
 </nav>
 
 <header class="hero">
-  <span class="kicker">AI-Powered Bulk Email / Mail Merge</span>
-  <h1>Write once.<br>Speak to <span class="red">everyone.</span></h1>
-  <p class="lead">AI-written, per-person emails for every student and parent on your list. Upload the roster, let the machine map and write, review everything, then send with confidence.</p>
-  <div id="status">Checking...</div>
-  <div class="hero-actions">
+  <span class="kicker appear a1">AI-Powered Bulk Email / Mail Merge</span>
+  <h1 class="split">
+    <span class="line"><span>Write once.</span></span>
+    <span class="line"><span>Speak to <span class="red">everyone.</span></span></span>
+  </h1>
+  <p class="lead appear a3">AI-written, per-person emails for every student and parent on your list. Upload the roster, let the machine map and write, review everything, then send with confidence.</p>
+  <div id="status" class="appear a4">Checking...</div>
+  <div class="hero-actions appear a5">
     <a class="btn" href="#workflow">Start the workflow ↓</a>
     <a class="btn btn-outline" href="#settings">Gmail settings</a>
   </div>
