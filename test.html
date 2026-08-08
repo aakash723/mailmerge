@@ -68,6 +68,7 @@ a { color: inherit; text-decoration: none; }
   transition: opacity 0.8s ease;
 }
 #preloader.gone { opacity: 0; pointer-events: none; }
+.ptrack { will-change: transform; }
 .pwrap {
   display: flex;
   transform: scale(0.2);
@@ -82,7 +83,7 @@ a { color: inherit; text-decoration: none; }
   -webkit-text-stroke: 1.5px var(--red);
   animation: pfill 0.55s ease forwards;
 }
-.pwrap.grow { animation: grow 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.pwrap.grow { animation: grow 4.2s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
 .pwrap.grow.pout { animation: pout 0.9s cubic-bezier(0.7, 0, 0.3, 1) forwards; }
 @keyframes pfill { to { color: var(--red); -webkit-text-stroke-color: var(--red); } }
 @keyframes grow { to { transform: scale(1); } }
@@ -454,7 +455,9 @@ body.loaded .appear { animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwar
 <div id="cursor"></div>
 
 <div id="preloader">
-  <div class="pwrap" id="pwrap"><span>G</span><span>A</span><span>R</span><span>A</span><span>G</span><span>E</span><span>M</span><span>A</span><span>I</span><span>L</span></div>
+  <div class="ptrack" id="ptrack">
+    <div class="pwrap" id="pwrap"><span>G</span><span>A</span><span>R</span><span>A</span><span>G</span><span>E</span><span>M</span><span>A</span><span>I</span><span>L</span></div>
+  </div>
 </div>
 
 <nav class="navbar">
@@ -885,12 +888,27 @@ if (!reduced && 'IntersectionObserver' in window) {
   if (reduced) {
     reveal();
   } else {
-    // Loader: wordmark scales up and centres, then the overlay peels away.
+    // Loader: wordmark fills red, then chases the cursor (~1s lag) for 5s, then goes big and reveals.
     pwrap.classList.add('grow');
+    const ptrack = document.getElementById('ptrack');
+    if (ptrack && fine) {
+      let mx = 0, my = 0, tx = 0, ty = 0;
+      document.addEventListener('mousemove', (e) => {
+        mx = e.clientX / innerWidth - 0.5;
+        my = e.clientY / innerHeight - 0.5;
+      });
+      (function loop() {
+        if (!ptrack.parentNode) return;
+        tx += (mx - tx) * 0.018;
+        ty += (my - ty) * 0.018;
+        ptrack.style.transform = 'translate(' + (tx * innerWidth * 0.35) + 'px,' + (ty * innerHeight * 0.35) + 'px)';
+        requestAnimationFrame(loop);
+      })();
+    }
     setTimeout(() => {
       if (pwrap) pwrap.classList.add('pout');
       reveal();
-    }, 2500);
+    }, 5000);
   }
 
   // Custom cursor: lags behind the mouse, negative blend, grows on hover.
