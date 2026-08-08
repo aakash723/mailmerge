@@ -65,7 +65,7 @@ a { color: inherit; text-decoration: none; }
   background: var(--bg);
   display: grid;
   place-items: center;
-  transition: opacity 0.8s ease;
+  transition: opacity 1.1s ease;
 }
 #preloader.gone { opacity: 0; pointer-events: none; }
 .ptrack { will-change: transform; }
@@ -90,13 +90,13 @@ a { color: inherit; text-decoration: none; }
   -webkit-text-stroke-color: var(--red);
   clip-path: inset(0 100% 0 0);
 }
-.pwrap span.pw-fill { animation: pwfill 2.4s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards; }
+.pwrap span.pw-fill { animation: pwfill 3.4s cubic-bezier(0.22, 1, 0.36, 1) 0.45s forwards; }
 .pword { position: relative; display: inline-flex; }
 @keyframes pwfill {
   to { clip-path: inset(0 0 0 0); }
 }
-.pwrap.grow { animation: grow 4.2s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-.pwrap.grow.pout { animation: pout 0.9s cubic-bezier(0.7, 0, 0.3, 1) forwards; }
+.pwrap.grow { animation: grow 5.9s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.pwrap.grow.pout { animation: pout 1.25s cubic-bezier(0.7, 0, 0.3, 1) forwards; }
 @keyframes grow { to { transform: scale(1); } }
 @keyframes pout { to { transform: scale(2.6); } }
 
@@ -892,7 +892,7 @@ if (!reduced && 'IntersectionObserver' in window) {
     const pre = document.getElementById('preloader');
     if (pre) {
       pre.classList.add('gone');
-      setTimeout(() => { if (pre.parentNode) pre.parentNode.removeChild(pre); }, 900);
+      setTimeout(() => { if (pre.parentNode) pre.parentNode.removeChild(pre); }, 1300);
     }
   }
 
@@ -920,7 +920,7 @@ if (!reduced && 'IntersectionObserver' in window) {
     setTimeout(() => {
       if (pwrap) pwrap.classList.add('pout');
       reveal();
-    }, 5000);
+    }, 7000);
   }
 
   // Custom cursor: lags behind the mouse, negative blend, grows on hover.
