@@ -7,12 +7,12 @@
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,500;9..40,600;9..40,700&family=DM+Mono:wght@500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0a0a0a;
-  --panel: rgba(255, 255, 255, 0.04);
-  --line: rgba(131, 131, 131, 0.25);
-  --ink: #ffffff;
-  --muted: rgba(255, 255, 255, 0.5);
-  --faint: rgba(255, 255, 255, 0.32);
+  --bg: #f3eded;
+  --ink: #0e0e0e;
+  --panel: rgba(131, 131, 131, 0.12);
+  --line: rgba(131, 131, 131, 0.28);
+  --muted: rgba(15, 14, 14, 0.55);
+  --faint: rgba(15, 14, 14, 0.35);
   --red: #ff2e31;
   --sans: "DM Sans", sans-serif;
   --body: "Inter", sans-serif;
@@ -30,29 +30,63 @@ body {
   font-size: 16px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 a { color: inherit; text-decoration: none; }
 ::selection { background: var(--red); color: #fff; }
 
-/* ---------- Animated brand ---------- */
-@keyframes brandSweep {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 200% 50%; }
+/* ---------- Custom cursor (negative blend) ---------- */
+#cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #fff;
+  mix-blend-mode: difference;
+  pointer-events: none;
+  z-index: 400;
+  will-change: transform;
 }
-.brand {
+#cursor.hov {
+  width: 72px;
+  height: 72px;
+  transition: width 0.25s cubic-bezier(0.22, 1, 0.36, 1), height 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (hover: none), (pointer: coarse) { #cursor { display: none; } }
+
+/* ---------- Preloader ---------- */
+#preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+  transition: opacity 0.8s ease;
+}
+#preloader.gone { opacity: 0; pointer-events: none; }
+.pwrap {
+  display: flex;
+  transform: scale(0.2);
+  will-change: transform;
+}
+.pwrap span {
   font-family: var(--sans);
-  font-weight: 700;
-  font-size: 20px;
-  letter-spacing: 0.01em;
-  background: linear-gradient(90deg, #fff 0%, var(--red) 30%, #fff 50%, var(--red) 70%, #fff 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
+  font-weight: 600;
+  font-size: clamp(34px, 6vw, 64px);
+  letter-spacing: -0.07em;
   color: transparent;
-  -webkit-text-fill-color: transparent;
-  animation: brandSweep 5s linear infinite;
+  -webkit-text-stroke: 1.5px var(--red);
+  animation: pfill 0.55s ease forwards;
 }
+.pwrap.grow { animation: grow 2.2s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.pwrap.grow.pout { animation: pout 0.9s cubic-bezier(0.7, 0, 0.3, 1) forwards; }
+@keyframes pfill { to { color: var(--red); -webkit-text-stroke-color: var(--red); } }
+@keyframes grow { to { transform: scale(1); } }
+@keyframes pout { to { transform: scale(2.6); } }
 
 /* ---------- Navigation ---------- */
 .navbar {
@@ -64,10 +98,17 @@ a { color: inherit; text-decoration: none; }
   justify-content: space-between;
   gap: 24px;
   padding: 18px 32px;
-  background: rgba(10, 10, 10, 0.85);
+  background: rgba(243, 237, 237, 0.85);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
 }
+.brand {
+  font-family: var(--sans);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.01em;
+}
+.brand:hover { color: var(--red); }
 .nav-links { display: flex; gap: 28px; align-items: center; }
 .nav-links a {
   font-family: var(--mono);
@@ -79,6 +120,7 @@ a { color: inherit; text-decoration: none; }
 }
 .nav-links a:hover { color: var(--red); }
 .nav-contact { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+.nav-contact:hover { color: var(--red); }
 
 /* ---------- Hero ---------- */
 .hero {
@@ -86,33 +128,36 @@ a { color: inherit; text-decoration: none; }
   max-width: 1180px;
   margin: 0 auto;
 }
+.hero-track { will-change: transform; }
 .kicker {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
+  display: flex;
+  gap: 2px;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 13px;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: var(--muted);
-  margin-bottom: 30px;
+  letter-spacing: 0.14em;
+  color: var(--red);
+  margin-bottom: 34px;
+  white-space: pre-wrap;
 }
-.kicker::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--red);
+.kicker span {
+  display: inline-block;
+  opacity: 0;
+  filter: blur(4px);
+  transform: translateY(14px);
+}
+body.loaded .kicker span { animation: letterIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+@keyframes letterIn {
+  to { opacity: 1; filter: blur(0); transform: none; }
 }
 .hero h1 {
   font-family: var(--sans);
-  font-weight: 700;
-  font-size: clamp(46px, 8.5vw, 96px);
-  line-height: 0.95;
-  letter-spacing: -0.03em;
+  font-weight: 600;
+  font-size: clamp(46px, 7vw, 64px);
+  line-height: 1.1;
+  letter-spacing: -0.07em;
   max-width: 18ch;
 }
-.hero h1 .red { color: var(--red); }
 .hero .lead {
   margin-top: 28px;
   max-width: 54ch;
@@ -159,13 +204,14 @@ a { color: inherit; text-decoration: none; }
   color: #000;
   border: 1px solid #fff;
   padding: 15px 28px;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: transform 0.15s, opacity 0.15s, border-color 0.15s, color 0.15s;
+  box-shadow: 0 0.6px 1.6px -1.5px rgba(0, 0, 0, 0.17), 0 2.3px 6px -3px rgba(0, 0, 0, 0.14), 0 10px 26px -4.5px rgba(0, 0, 0, 0.02);
+  transition: transform 0.15s, opacity 0.15s, border-color 0.15s, color 0.15s, box-shadow 0.15s;
 }
-.btn:hover { transform: translateY(-2px); opacity: 0.92; }
-.btn-outline { background: transparent; color: #fff; border-color: var(--line); }
-.btn-outline:hover { border-color: var(--red); color: var(--red); opacity: 1; }
+.btn:hover { transform: translateY(-2px); opacity: 0.92; box-shadow: 0 2px 4px -1.5px rgba(0, 0, 0, 0.17), 0 6px 14px -3px rgba(0, 0, 0, 0.14), 0 18px 40px -4.5px rgba(0, 0, 0, 0.06); }
+.btn-outline { background: transparent; color: var(--ink); border-color: var(--line); box-shadow: none; }
+.btn-outline:hover { border-color: var(--red); color: var(--red); opacity: 1; box-shadow: none; }
 
 /* ---------- Value props ---------- */
 .props {
@@ -209,22 +255,22 @@ main { max-width: 1180px; margin: 0 auto; padding: 0 32px 80px; }
 }
 input[type="text"], input[type="password"], textarea, select {
   width: 100%;
-  background: var(--panel);
+  background: #fff;
   border: 1px solid var(--line);
   color: var(--ink);
   font-family: var(--body);
   font-size: 15px;
   padding: 14px 16px;
-  border-radius: 6px;
+  border-radius: 8px;
   outline: none;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
-input:focus, textarea:focus, select:focus { border-color: var(--red); }
+input:focus, textarea:focus, select:focus { border-color: var(--red); box-shadow: 0 0 0 3px rgba(255, 46, 49, 0.12); }
 input::placeholder, textarea::placeholder { color: var(--faint); }
 textarea { min-height: 110px; resize: vertical; }
 input[type="checkbox"], input[type="radio"] { accent-color: var(--red); width: 16px; height: 16px; cursor: pointer; }
 .hint { font-size: 13px; color: var(--muted); margin-top: 8px; max-width: 560px; }
-.hint code { font-family: var(--mono); font-size: 12px; color: var(--red); background: var(--panel); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--line); }
+.hint code { font-family: var(--mono); font-size: 12px; color: var(--red); background: #fff; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--line); }
 
 /* ---------- Campaign chips ---------- */
 .chips { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 24px; }
@@ -275,9 +321,9 @@ tr:last-child td { border-bottom: none; }
 /* ---------- Preview / Result ---------- */
 #preview { margin-top: 24px; display: grid; gap: 14px; }
 #preview pre {
-  background: var(--panel);
+  background: #fff;
   border: 1px solid var(--line);
-  color: #fff;
+  color: var(--ink);
   font-family: var(--mono);
   font-size: 13px;
   line-height: 1.6;
@@ -292,7 +338,7 @@ tr:last-child td { border-bottom: none; }
   font-size: 13px;
   line-height: 1.7;
   color: var(--ink);
-  background: var(--panel);
+  background: #fff;
   border: 1px solid var(--line);
   padding: 16px 20px;
   border-radius: 8px;
@@ -319,35 +365,30 @@ tr:last-child td { border-bottom: none; }
 .footer ul a:hover { color: var(--red); }
 .footer .copy { grid-column: 1 / -1; font-family: var(--mono); font-size: 12px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 24px; margin-top: 20px; }
 
-/* ---------- Hero entrance (Framer-style appear) ---------- */
-@keyframes rise {
-  from { opacity: 0; transform: translateY(28px); }
-  to { opacity: 1; transform: none; }
-}
-@keyframes dropIn {
-  from { opacity: 0; transform: translateY(-16px); }
-  to { opacity: 1; transform: none; }
-}
-.appear { opacity: 0; animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-.appear-nav { opacity: 0; animation: dropIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
-.a1 { animation-delay: 0.10s; }
-.a2 { animation-delay: 0.22s; }
-.a3 { animation-delay: 0.34s; }
-.a4 { animation-delay: 0.46s; }
-.a5 { animation-delay: 0.58s; }
-
 /* ---------- Hero headline mask reveal (per line) ---------- */
 .split .line { display: block; overflow: hidden; padding-bottom: 0.12em; margin-bottom: -0.12em; }
 .split .line > span {
   display: inline-block;
   transform: translateY(112%);
-  animation: lineUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
-.split .line:nth-child(1) > span { animation-delay: 0.20s; }
-.split .line:nth-child(2) > span { animation-delay: 0.38s; }
+body.loaded .split .line > span { animation: lineUp 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.split .line:nth-child(1) > span { animation-delay: 0.30s; }
+.split .line:nth-child(2) > span { animation-delay: 0.48s; }
 @keyframes lineUp {
   to { transform: none; }
 }
+
+/* ---------- Fade-up appear (after preloader) ---------- */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(28px); }
+  to { opacity: 1; transform: none; }
+}
+.appear { opacity: 0; }
+body.loaded .appear { animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+.a1 { animation-delay: 0.70s; }
+.a2 { animation-delay: 0.82s; }
+.a3 { animation-delay: 0.94s; }
+.a4 { animation-delay: 1.06s; }
 
 /* ---------- Reveal (on scroll) ---------- */
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; }
@@ -386,8 +427,8 @@ tr:last-child td { border-bottom: none; }
   .brand { font-size: 17px; }
   .nav-links { gap: 16px; }
   .nav-links a { font-size: 11px; }
-  .kicker { font-size: 10px; }
-  .hero h1 { font-size: clamp(42px, 13vw, 56px); }
+  .kicker { font-size: 11px; }
+  .hero h1 { font-size: clamp(40px, 13vw, 52px); }
   .btn { padding: 16px 20px; font-size: 15px; }
   .chip span { padding: 13px 18px; font-size: 12px; }
   .step-head .sub { margin-left: 0; flex-basis: 100%; }
@@ -400,16 +441,23 @@ tr:last-child td { border-bottom: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .brand { animation: none; -webkit-text-fill-color: #fff; color: #fff; }
-  .appear, .appear-nav { opacity: 1; animation: none; }
+  #cursor { display: none; }
+  .appear { opacity: 1; animation: none; }
   .split .line > span { transform: none; animation: none; }
+  .kicker span { opacity: 1; filter: none; transform: none; animation: none; }
   .reveal { opacity: 1; transform: none; transition: none; }
 }
 </style>
 </head>
 <body>
 
-<nav class="navbar appear-nav">
+<div id="cursor"></div>
+
+<div id="preloader">
+  <div class="pwrap" id="pwrap"><span>G</span><span>A</span><span>R</span><span>A</span><span>G</span><span>E</span><span>M</span><span>A</span><span>I</span><span>L</span></div>
+</div>
+
+<nav class="navbar">
   <div class="brand">GARAGEMAIL</div>
   <div class="nav-links">
     <a href="#workflow">Workflow</a>
@@ -420,16 +468,18 @@ tr:last-child td { border-bottom: none; }
 </nav>
 
 <header class="hero">
-  <span class="kicker appear a1">AI-Powered Bulk Email / Mail Merge</span>
-  <h1 class="split">
-    <span class="line"><span>Write once.</span></span>
-    <span class="line"><span>Speak to <span class="red">everyone.</span></span></span>
-  </h1>
-  <p class="lead appear a3">AI-written, per-person emails for every student and parent on your list. Upload the roster, let the machine map and write, review everything, then send with confidence.</p>
-  <div id="status" class="appear a4">Checking...</div>
-  <div class="hero-actions appear a5">
-    <a class="btn" href="#workflow">Start the workflow ↓</a>
-    <a class="btn btn-outline" href="#settings">Gmail settings</a>
+  <div class="hero-track">
+    <div class="kicker" id="kicker">PERSONAL EMAILS AT SCALE</div>
+    <h1 class="split">
+      <span class="line"><span>GARAGE</span></span>
+      <span class="line"><span>MAIL</span></span>
+    </h1>
+    <p class="lead appear a1">AI-written, per-person emails for every student and parent on your list. Upload the roster, let the machine map and write, review everything, then send with confidence.</p>
+    <div id="status" class="appear a2">Checking...</div>
+    <div class="hero-actions appear a3">
+      <a class="btn" href="#workflow">Start the workflow ↓</a>
+      <a class="btn btn-outline" href="#settings">Gmail settings</a>
+    </div>
   </div>
 </header>
 
@@ -797,6 +847,85 @@ if (!reduced && 'IntersectionObserver' in window) {
 } else {
   document.querySelectorAll('.reveal').forEach((el) => el.classList.add('in'));
 }
+</script>
+<script>
+// Kirk Sinner effects: preloader, custom cursor, mouse-tracker hero.
+(function () {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  // Split the red kicker into letters (letter-by-letter reveal).
+  const kicker = document.getElementById('kicker');
+  if (kicker) {
+    const text = kicker.textContent;
+    kicker.textContent = '';
+    text.split('').forEach((ch, i) => {
+      const s = document.createElement('span');
+      s.textContent = ch;
+      if (ch === ' ') s.style.width = '0.5em';
+      s.style.animationDelay = (0.10 + i * 0.03) + 's';
+      kicker.appendChild(s);
+    });
+  }
+
+  // Stagger the preloader letter fill.
+  const pwrap = document.getElementById('pwrap');
+  if (pwrap) {
+    pwrap.querySelectorAll('span').forEach((s, i) => { s.style.animationDelay = (i * 0.05) + 's'; });
+  }
+
+  function reveal() {
+    document.body.classList.add('loaded');
+    const pre = document.getElementById('preloader');
+    if (pre) {
+      pre.classList.add('gone');
+      setTimeout(() => { if (pre.parentNode) pre.parentNode.removeChild(pre); }, 900);
+    }
+  }
+
+  if (reduced) {
+    reveal();
+  } else {
+    // Loader: wordmark scales up and centres, then the overlay peels away.
+    pwrap.classList.add('grow');
+    setTimeout(() => {
+      if (pwrap) pwrap.classList.add('pout');
+      reveal();
+    }, 2500);
+  }
+
+  // Custom cursor: lags behind the mouse, negative blend, grows on hover.
+  const cursor = document.getElementById('cursor');
+  if (cursor && fine && !reduced) {
+    let mx = innerWidth / 2, my = innerHeight / 2, cx = mx, cy = my;
+    document.addEventListener('mousemove', (e) => { mx = e.clientX; my = e.clientY; });
+    (function loop() {
+      cx += (mx - cx) * 0.16;
+      cy += (my - cy) * 0.16;
+      cursor.style.transform = 'translate(' + (cx - cursor.offsetWidth / 2) + 'px,' + (cy - cursor.offsetHeight / 2) + 'px)';
+      requestAnimationFrame(loop);
+    })();
+    const HOVER = 'a, button, .chip span, .checkline, input, textarea, select, label';
+    document.addEventListener('mouseover', (e) => { if (e.target.closest(HOVER)) cursor.classList.add('hov'); });
+    document.addEventListener('mouseout', (e) => { if (e.target.closest(HOVER)) cursor.classList.remove('hov'); });
+  }
+
+  // Mouse-tracker hero: the big title follows the mouse with lag.
+  const track = document.querySelector('.hero-track');
+  if (track && fine && !reduced) {
+    let mx = 0, my = 0, tx = 0, ty = 0;
+    document.addEventListener('mousemove', (e) => {
+      mx = (e.clientX / innerWidth - 0.5);
+      my = (e.clientY / innerHeight - 0.5);
+    });
+    (function loop() {
+      tx += (mx - tx) * 0.08;
+      ty += (my - ty) * 0.08;
+      track.style.transform = 'translate(' + (tx * 26) + 'px,' + (ty * 18) + 'px)';
+      requestAnimationFrame(loop);
+    })();
+  }
+})();
 </script>
 </body>
 </html>
