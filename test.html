@@ -81,11 +81,22 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: -0.07em;
   color: transparent;
   -webkit-text-stroke: 1.5px var(--red);
-  animation: pfill 0.55s ease forwards;
+}
+.pwrap span.pw-outline { color: transparent; }
+.pwrap span.pw-fill {
+  position: absolute;
+  inset: 0;
+  color: var(--red);
+  -webkit-text-stroke-color: var(--red);
+  clip-path: inset(0 100% 0 0);
+}
+.pwrap span.pw-fill { animation: pwfill 2.4s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards; }
+.pword { position: relative; display: inline-flex; }
+@keyframes pwfill {
+  to { clip-path: inset(0 0 0 0); }
 }
 .pwrap.grow { animation: grow 4.2s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
 .pwrap.grow.pout { animation: pout 0.9s cubic-bezier(0.7, 0, 0.3, 1) forwards; }
-@keyframes pfill { to { color: var(--red); -webkit-text-stroke-color: var(--red); } }
 @keyframes grow { to { transform: scale(1); } }
 @keyframes pout { to { transform: scale(2.6); } }
 
@@ -446,6 +457,7 @@ body.loaded .appear { animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwar
   .appear { opacity: 1; animation: none; }
   .split .line > span { transform: none; animation: none; }
   .kicker span { opacity: 1; filter: none; transform: none; animation: none; }
+  .pw-fill { clip-path: none; }
   .reveal { opacity: 1; transform: none; transition: none; }
 }
 </style>
@@ -456,7 +468,12 @@ body.loaded .appear { animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwar
 
 <div id="preloader">
   <div class="ptrack" id="ptrack">
-    <div class="pwrap" id="pwrap"><span>G</span><span>A</span><span>R</span><span>A</span><span>G</span><span>E</span><span>M</span><span>A</span><span>I</span><span>L</span></div>
+    <div class="pwrap" id="pwrap">
+      <div class="pword" id="pword">
+        <span class="pw-outline">GARAGEMAIL</span>
+        <span class="pw-fill">GARAGEMAIL</span>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -870,12 +887,6 @@ if (!reduced && 'IntersectionObserver' in window) {
     });
   }
 
-  // Stagger the preloader letter fill.
-  const pwrap = document.getElementById('pwrap');
-  if (pwrap) {
-    pwrap.querySelectorAll('span').forEach((s, i) => { s.style.animationDelay = (i * 0.05) + 's'; });
-  }
-
   function reveal() {
     document.body.classList.add('loaded');
     const pre = document.getElementById('preloader');
@@ -889,6 +900,7 @@ if (!reduced && 'IntersectionObserver' in window) {
     reveal();
   } else {
     // Loader: wordmark fills red, then chases the cursor (~1s lag) for 5s, then goes big and reveals.
+    const pwrap = document.getElementById('pwrap');
     pwrap.classList.add('grow');
     const ptrack = document.getElementById('ptrack');
     if (ptrack && fine) {
