@@ -316,15 +316,50 @@ tr:last-child td { border-bottom: none; }
 .reveal { opacity: 0; transform: translateY(18px); transition: opacity 0.6s ease, transform 0.6s ease; }
 .reveal.in { opacity: 1; transform: none; }
 
+/* ---------- Tablet (Framer-style tablet variant) ---------- */
+@media (max-width: 1024px) {
+  .hero { padding: 72px 28px 56px; }
+  main { padding: 0 28px 64px; }
+  .props { padding: 0 28px 32px; }
+  .prop { padding: 24px 22px; }
+  .step { padding: 48px 0; }
+}
+
+/* ---------- Phone (Framer-style mobile variant) ---------- */
 @media (max-width: 760px) {
   .props { grid-template-columns: 1fr; }
   .footer { grid-template-columns: 1fr; gap: 28px; }
-  .navbar { padding: 14px 18px; flex-wrap: wrap; }
+  .navbar { padding: 14px 18px; flex-wrap: wrap; gap: 10px; }
   .nav-contact { display: none; }
-  .hero { padding: 64px 18px 48px; }
+  .hero { padding: 56px 18px 44px; }
   main { padding: 0 18px 48px; }
-  .footer { padding: 48px 18px 32px; }
+  .footer { padding: 44px 18px 28px; }
   .step-head { flex-wrap: wrap; }
+  .hero-actions { flex-direction: column; align-items: stretch; }
+  .hero-actions .btn { text-align: center; }
+  .table-wrap { margin-top: 18px; }
+  th, td { padding: 10px 12px; font-size: 13px; }
+  #mapping { grid-template-columns: 1fr; }
+}
+
+/* ---------- Small phones ---------- */
+@media (max-width: 480px) {
+  .navbar { padding: 12px 14px; }
+  .brand { font-size: 16px; }
+  .nav-links { gap: 16px; }
+  .nav-links a { font-size: 11px; }
+  .mono-tag { font-size: 10px; padding: 5px 10px; }
+  .hero h1 { font-size: clamp(40px, 13vw, 52px); }
+  .btn, .btn-small { padding: 16px 20px; font-size: 15px; }
+  .chip span { padding: 12px 18px; font-size: 12px; }
+  .step-head .sub { margin-left: 0; flex-basis: 100%; }
+  .field label { font-size: 11px; }
+  input[type="text"], input[type="password"], textarea, select { padding: 14px 14px; font-size: 16px; }
+  #preview pre { font-size: 12px; padding: 18px 16px; }
+  #result { font-size: 12px; }
+  .props { padding: 0 18px 24px; }
+  .prop { padding: 22px 20px; }
+  .footer { grid-template-columns: 1fr; gap: 24px; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
