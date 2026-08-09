@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: mailmerge
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: python server.py
+    envVars:
+      - key: GROQ_API_KEY
+        sync: false
+      - key: SENDER_NAME
+        value: Professor

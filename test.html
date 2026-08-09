@@ -645,6 +645,9 @@ body.loaded .appear { animation: rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwar
 <script>
 const $ = id => document.getElementById(id);
 
+const BACKEND_URL = 'https://mailmerge.onrender.com';
+const API = (location.hostname === 'localhost' || location.hostname === '127.0.0.1') ? '' : BACKEND_URL;
+
 let headers = [];
 let rows = [];
 
@@ -672,7 +675,7 @@ function parseCSV(text) {
 
 async function api(path, payload) {
   payload.settings = settings();
-  const res = await fetch(path, {
+  const res = await fetch(API + path, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
@@ -728,7 +731,7 @@ async function refreshStatus() {
   const s = settings();
   let parts = [];
   try {
-    const res = await fetch('/api/status');
+    const res = await fetch(API + '/api/status');
     const info = await res.json();
     parts.push('AI: ' + (info.ai_online ? '<span class="ok">ready</span>' : '<span class="bad">server has no Groq key</span>'));
     parts.push('Model: ' + info.model);
